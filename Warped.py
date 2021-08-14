@@ -1,18 +1,20 @@
 import numpy as np
-import cv2 as cv
+import cv2
 
 # 画像読み込み
-img01 = cv.imread('../atami_frame/result_frame_img_3840.jpg')
-img02 = cv.imread('../atami_frame/result_frame_img_3870.jpg')
+img01 = cv2.imread('../atami_frame/result_frame_img_3840.jpg')
+img01 = cv2.cvtColor(img01, cv2.COLOR_BGR2RGB)
+img02 = cv2.imread('../atami_frame/result_frame_img_3841.jpg')
+img02 = cv2.cvtColor(img02, cv2.COLOR_BGR2RGB)
 
 # キーポイントの検出と特徴の記述
-akaze = cv.AKAZE_create()
-img01_kp, img01_des = akaze.detectAndCompute(img01, None)
-img02_kp, img02_des = akaze.detectAndCompute(img02, None)
+sift = cv2.SIFT_create()
+img01_kp, img01_des = sift.detectAndCompute(img01, None)
+img02_kp, img02_des = sift.detectAndCompute(img02, None)
 
 # 特徴のマッチング
-bf = cv.BFMatcher()
-matches = bf.knnMatch(img01_des, img01_des, k=2)
+bf = cv2.BFMatcher()
+matches = bf.knnMatch(img01_des, img02_des, k=2)
 
 # 正しいマッチングのみ保持
 good_matches = []
@@ -27,11 +29,12 @@ sensed_matched_kpts = np.float32(
     [img02_kp[m[0].trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)
 
 # ホモグラフィを計算
-H, status = cv.findHomography(
-    img02_matched_kpts, sensed_matched_kpts, cv.RANSAC, 5.0)
+H, status = cv2.findHomography(
+    img02_matched_kpts, sensed_matched_kpts, cv2.RANSAC, 5.0)
 
-# 画像を変換
-warped_image = cv.warpPerspective(
+# 画像の変換と色をBGRに戻す
+warped_image = cv2.warpPerspective(
     img01, H, (img01.shape[1], img01.shape[0]))
+warped_image = cv2.cvtColor(warped_image, cv2.COLOR_RGB2BGR)
 
-cv.imwrite('img/result/result_warped_01.jpg', warped_image)
+cv2.imwrite('img/result/result_warped_01.jpg', warped_image)
