@@ -2,9 +2,9 @@ import numpy as np
 import cv2
 
 # 画像読み込み
-img01 = cv2.imread('../atami_frame/result_frame_img_3840.jpg')
+img01 = cv2.imread('../atami_frame/result_frame_img_4830.jpg')
 img01 = cv2.cvtColor(img01, cv2.COLOR_BGR2RGB)
-img02 = cv2.imread('../atami_frame/result_frame_img_3841.jpg')
+img02 = cv2.imread('../atami_frame/result_frame_img_3840.jpg')
 img02 = cv2.cvtColor(img02, cv2.COLOR_BGR2RGB)
 
 # キーポイントの検出と特徴の記述

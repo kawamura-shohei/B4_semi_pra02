@@ -3,7 +3,7 @@ import cv2
 
 def main():
     cv2.imwrite('img/result/result_warped.jpg', 
-        FeatureMatching_And_Warped('../atami_frame/result_frame_img_', 3840, 3845, 1))
+        FeatureMatching_And_Warped('../atami_frame/result_frame_img_', 3840, 4740, 900))
 
 
 # 再帰的にSIFTによる特徴点記述とマッチングを行う関数

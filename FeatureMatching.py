@@ -3,7 +3,7 @@ import cv2
 # 画像読み込み
 img01 = cv2.imread('../atami_frame/result_frame_img_3840.jpg')
 img01 = cv2.cvtColor(img01, cv2.COLOR_BGR2RGB)
-img02 = cv2.imread('../atami_frame/result_frame_img_3841.jpg')
+img02 = cv2.imread('../atami_frame/result_frame_img_4140.jpg')
 img02 = cv2.cvtColor(img02, cv2.COLOR_BGR2RGB)
 
 # キーポイントの検出と特徴の記述
@@ -29,5 +29,6 @@ matches_img = cv2.drawMatchesKnn(
     good_matches,
     None,
     flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+matches_img = cv2.cvtColor(matches_img, cv2.COLOR_RGB2BGR)
 
 cv2.imwrite('img/result/result_matches_01.jpg', matches_img)
