@@ -3,12 +3,18 @@ import numpy as np
 from PIL import Image
 
 def main():
-    # 順に  初期フレーム, 使用するフレームの間隔, 最後のフレーム(の1つ前)
+    # 順に  初期フレーム, 使用するフレームの間隔, 最後のフレーム(の1つ前), 使用したフレーム数の合計
     firstframe_num = 3840
-    stepframe_num = 240
-    endframe_num = 5041
+    stepframe_num = 180
+    endframe_num = 8101
+    usedframe_num = ((endframe_num-1) - firstframe_num) // stepframe_num
+
+    # 連続で貼り合わせる
     for i in range(firstframe_num + stepframe_num, endframe_num, stepframe_num):
         gousei(firstframe_num, stepframe_num ,i)
+
+    # 対応点を与えて射影変換する
+    homography('../atami_registration/result_registration_' + str(firstframe_num + stepframe_num * usedframe_num) + '.jpg')
 
 
 # フレーム間でSIFTを用い対応点通りに射影変換するプログラム
@@ -72,7 +78,7 @@ def mask(maskImg_path_01, maskImg_path_02, maskProcessingframe_num):
     [1, 1, 1],
     ], dtype=np.uint8)
     img_delation = cv2.dilate(img_binary, kernel, iterations=15)
-    img_erosion = cv2.erode(img_delation, kernel, iterations=15)
+    img_erosion = cv2.erode(img_delation, kernel, iterations=16)
 
     # BGRを指定
     img_erosion = cv2.cvtColor(img_erosion, cv2.COLOR_GRAY2BGR)
@@ -109,6 +115,23 @@ def gousei(gouseiFirstframe_num, gouseiStepframe_num , gouseiProcessingframe_num
     # マスク画像を基に貼り合わせ
     img_copy.paste(img_registration, (0, 0), img_mask)
     img_copy.save('../atami_registration/result_registration_' + str(gouseiProcessingframe_num) + '.jpg')
+
+
+# 手動で対応点を与えて射影変換するプログラム
+def homography(img_in_name):
+    img_in = cv2.imread(img_in_name) #鳥瞰視点画像
+
+    # 変換前後の対応点を設定
+    p_original = np.float32([[741, 566], [360, 282], [777, 126], [1096, 193]]) #鳥瞰視点画像の4点
+    p_trans = np.float32([[905, 363], [749, 538], [461, 317], [675, 162]]) #直下視画像の4点
+
+    # 変換マトリクスと射影変換
+    M, mask = cv2.findHomography(p_original, p_trans, cv2.RANSAC) #0:すべてのポイントを使用する通常の方法、RANSAC：RANSACベースの堅牢な方法、LMEDS：最小中央値のロバストな方法
+    img_trans = cv2.warpPerspective(img_in, M, (1280, 720)) #サイズ指定
+
+    cv2.imwrite("img/result/result_homography.jpg", img_trans)
+    return img_trans
+
 
 if __name__ == '__main__':
         main()
